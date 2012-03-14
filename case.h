@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-/* the following 3 lines to generate unique name was taken from Catch: https://github.com/philsquared/Catch
+/* the following 9 lines to generate unique name was taken from Catch: https://github.com/philsquared/Catch
  * here is the licence:
  * Boost Software License - Version 1.0 - August 17th, 2003
  *
@@ -29,9 +29,15 @@
  * FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE. */
+#ifndef INTERNAL_CATCH_UNIQUE_NAME_LINE2
 #define INTERNAL_CATCH_UNIQUE_NAME_LINE2( name, line ) name##line
+#endif
+#ifndef INTERNAL_CATCH_UNIQUE_NAME_LINE
 #define INTERNAL_CATCH_UNIQUE_NAME_LINE( name, line ) INTERNAL_CATCH_UNIQUE_NAME_LINE2( name, line )
+#endif
+#ifndef INTERNAL_CATCH_UNIQUE_NAME
 #define INTERNAL_CATCH_UNIQUE_NAME( name ) INTERNAL_CATCH_UNIQUE_NAME_LINE( name, __LINE__ )
+#endif
 
 typedef void (*case_f)(char*, int*);
 
