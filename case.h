@@ -42,17 +42,25 @@
 typedef void (*case_f)(char*, int*);
 
 typedef struct {
+	uint64_t sig_head;
 	case_f driver;
-	uint64_t sig;
 	char* name;
+	uint64_t sig_tail;
 } case_t;
 
 #define TEST_CASE(desc) \
 static void __attribute__((used)) INTERNAL_CATCH_UNIQUE_NAME(__test_case_driver__) (char* __case_name__, int* __case_result__); \
-static case_t INTERNAL_CATCH_UNIQUE_NAME(__test_case_ctx__) __attribute__((used)) = { .driver = INTERNAL_CATCH_UNIQUE_NAME(__test_case_driver__), .sig = 0x883253372849284B, .name = desc }; \
+static case_t INTERNAL_CATCH_UNIQUE_NAME(__test_case_ctx__) __attribute__((used)) = { .driver = INTERNAL_CATCH_UNIQUE_NAME(__test_case_driver__), .sig_head = 0x883253372849284B, .name = desc, .sig_tail = 0x883253372849284B }; \
 static void INTERNAL_CATCH_UNIQUE_NAME(__test_case_driver__) (char* __case_name__, int* __case_result__) 
 
 #define ABORT_CASE (*__case_result__) = -1; return;
+
+#define REQUIRE(a, err, ...) { \
+if (!(a)) \
+{ \
+	printf("\n\t\033[0;31mREQUIRE\033[0;0m: %s:%d: %s is not true, " err, __FILE__, __LINE__, #a, ##__VA_ARGS__); \
+	ABORT_CASE; \
+} }
 
 #define REQUIRE_EQ(a, b, err, ...) { \
 if ((a) != (b)) \
