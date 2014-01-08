@@ -42,14 +42,16 @@
 typedef void (*case_f)(char*, int*);
 
 typedef struct {
-	case_f func;
+	uint64_t sig_head;
+	case_f driver;
 	char* name;
+	uint64_t sig_tail;
 } case_t;
 
 #define TEST_CASE(desc) \
-static void __attribute__((used)) INTERNAL_CATCH_UNIQUE_NAME(__test_case_func__) (char* __case_name__, int* __case_result__); \
-static case_t INTERNAL_CATCH_UNIQUE_NAME(__test_case_ctx__) __attribute__((used)) __attribute__((section("case_data"))) = { .func = INTERNAL_CATCH_UNIQUE_NAME(__test_case_func__), .name = desc }; \
-static void INTERNAL_CATCH_UNIQUE_NAME(__test_case_func__) (char* __case_name__, int* __case_result__) 
+static void __attribute__((used)) INTERNAL_CATCH_UNIQUE_NAME(__test_case_driver__) (char* __case_name__, int* __case_result__); \
+static case_t INTERNAL_CATCH_UNIQUE_NAME(__test_case_ctx__) __attribute__((used)) = { .driver = INTERNAL_CATCH_UNIQUE_NAME(__test_case_driver__), .sig_head = 0x883253372849284B, .name = desc, .sig_tail = 0x883253372849284B }; \
+static void INTERNAL_CATCH_UNIQUE_NAME(__test_case_driver__) (char* __case_name__, int* __case_result__) 
 
 #define ABORT_CASE (*__case_result__) = -1; return;
 
@@ -123,37 +125,5 @@ for (__case_i__ = 0; __case_i__ < (len); __case_i__++) \
 		printf("\n\t\033[0;31mREQUIRE_ARRAY_NOT_EQ_WITH_TOLERANCE\033[0;0m: %s:%d: %s[%d](%lg) == %s[%d](%lg) | +-%lg, " err, __FILE__, __LINE__, #a, __case_i__, (double)((type*)(a))[__case_i__], #b, __case_i__, (double)((type*)(b))[__case_i__], (double)(t), ##__VA_ARGS__); \
 		ABORT_CASE; \
 	} }
-
-/* MAIN FUNCTION */
-
-extern case_t __start_case_data[];
-extern case_t __stop_case_data[];
-
-int main(int argc, char** argv)
-{
-	int total = __stop_case_data - __start_case_data;
-	int i, pass = 0, fail = 0;
-	for (i = 0; i < total; i++)
-	{
-		case_t* test_case = __start_case_data + i;
-		printf("\033[0;34m[%d/%d]\033[0;0m \033[1;33m[RUN]\033[0;0m %s ...", i + 1, total, test_case->name);
-		fflush(stdout);
-		int result = 0;
-		test_case->func(test_case->name, &result);
-		if (result == 0)
-		{
-			pass++;
-			printf("\r\033[0;34m[%d/%d]\033[0;0m \033[1;32m[PASS]\033[0;0m %s    \n", i + 1, total, test_case->name);
-		} else {
-			fail++;
-			printf("\n\033[0;34m[%d/%d]\033[0;0m \033[1;31m[FAIL]\033[0;0m %s\n", i + 1, total, test_case->name);
-		}
-	}
-	if (fail == 0)
-		printf("\033[0;32mall test case(s) passed, congratulations!\033[0;0m\n");
-	else
-		printf("\033[0;31m%d of %d test case(s) passed\033[0;0m\n", pass, fail + pass);
-	return fail;
-}
 
 #endif
