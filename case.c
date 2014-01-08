@@ -36,5 +36,3 @@ TEST_CASE("pass array test")
 	int b[3] = {1,2,3};
 	REQUIRE_ARRAY_EQ(int, a, b, 3, "a / b should be equal");
 }
-
-#include "case_main.h"
